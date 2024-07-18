@@ -19,3 +19,15 @@ class ProductView(APIView):
             return Response(data=serializer.data)
         else:
             return Response(serializer.errors)
+        
+class ProductDetailView(APIView):
+    def get(self,request,*args,**kwargs):
+        id = kwargs.get('id')
+        qs = Products.objects.get(id=id)
+        serializer = ProductSerializer(qs,many=False)
+        return Response(data=serializer.data)
+    
+    def delete(self,request,*args,**kwargs):
+        id = kwargs.get('id')
+        qs = Products.objects.get(id=id).delete()
+        return Response(data={'msg':'deleted'})
