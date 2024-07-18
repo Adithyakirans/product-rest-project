@@ -4,11 +4,11 @@ from django.db import models
 
 class Products(models.Model):
     name = models.CharField(max_length=150)
-    price = models.PositiveIntegerField()
+    price = models.IntegerField()
     description = models.CharField(max_length=150)
     category = models.CharField(max_length=150)
-    image = models.ImageField(null=True)
+    image = models.ImageField(null=True,blank=True)
 
     def __str__(self):
-        self.name
+        return self.name
 
