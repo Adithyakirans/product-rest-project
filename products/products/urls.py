@@ -18,8 +18,13 @@ from django.contrib import admin
 from django.urls import path
 from base import views
 
+# creating urls for viewsets
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register("base/products",views.ProductViewsetView,basename="products")
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('products/', views.ProductView.as_view()),
     path('products/<int:id>/', views.ProductDetailView.as_view())
-]
+]+router.urls

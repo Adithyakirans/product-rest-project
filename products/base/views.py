@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Products
 from .serializers import ProductSerializer
+from rest_framework import viewsets
 # Create your views here.
 
 # using API views
@@ -39,5 +40,60 @@ class ProductDetailView(APIView):
         qs = Products.objects.get(id=id)
         serializer = ProductSerializer(qs,many=False)
         return Response(data=serializer.data)
+    
+#  using Viewsets
+    # methods for each functions
+    # all methods can be done in 1 view
+
+
+class ProductViewsetView(viewsets.ViewSet):
+    def list(self,request,*args,**kwargs):
+        qs = Products.objects.all()
+        serializer = ProductSerializer(qs,many=True)
+        return Response(data=serializer.data)
+    
+    def create(self,request,*args,**kwargs):
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data)
+        else:
+            return Response(serializer.errors)
+    
+    def retrieve(self,request,*args,**kwargs):
+        # get the id of data passed by the clients here id is pk
+        id = kwargs.get('pk')
+        qs = Products.objects.get(id=id)
+        serializer = ProductSerializer(qs,many=False)
+        return Response(data=serializer.data)
+    
+    def destroy(self,request,*args,**kwargs):
+        # get the id of data passed by the clients here id is pk
+        id = kwargs.get('pk')
+        qs = Products.objects.get(id=id).delete()
+        return Response(data='deleted')
+    
+    def update(self,request,*args,**kwargs):
+        # get id of data we want to update
+        id = kwargs.get('pk')
+        # get data from the table using id
+        obj = Products.objects.get(id=id)
+        # serialize the data
+        # here we get the data we want to update with ie , request.data
+        # obj is the data we want to update,so instance=obj
+
+        serializer = ProductSerializer(data=request.data,instance=obj)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data)
+        else:
+            return Response(data=serializer.errors)
+        
+
+
+
+
+
     
 
