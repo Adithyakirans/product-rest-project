@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Products
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer,UserSerializer
 from rest_framework import viewsets
 from rest_framework.decorators import action
 # Create your views here.
@@ -43,7 +43,7 @@ class ProductDetailView(APIView):
         serializer = ProductSerializer(qs,many=False)
         return Response(data=serializer.data)
     
-#  using Viewsets
+#  ------------USING VIEWSETS--------------------------------------------------------------------------------
     # methods for each functions
     # all methods can be done in 1 view
 
@@ -103,6 +103,17 @@ def categories(self,request,*args,**kwargs):
     return Response(data=res)
     # as it is value list and not queryset no need to serialize the data
 
+
+class UserView(viewsets.ViewSet):
+    def create(self,request,*args,**kwargs):
+        # serialize data in to python native
+        serializer = UserSerializer(data=request.data)
+        # check whether data is valid
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data)
+        else:
+            return Response(data=serializer.errors)
 
 
 
