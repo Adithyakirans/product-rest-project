@@ -5,7 +5,9 @@ from rest_framework.views import APIView
 from .models import Products
 from .serializers import ProductSerializer
 from rest_framework import viewsets
+from rest_framework.decorators import action
 # Create your views here.
+
 
 # using API views
 class ProductView(APIView):
@@ -90,6 +92,26 @@ class ProductViewsetView(viewsets.ViewSet):
         else:
             return Response(data=serializer.errors)
         
+# getting category
+# we can create methods for ourself other than built in methods
+
+@action(methods=['GET'],detail=False)
+def categories(self,request,*args,**kwargs):
+    res = Products.objects.values_list('category',flat=True).distinct
+    # flat = True ==> get a list
+    # .distinct ==> same category womt repeat
+    return Response(data=res)
+    # as it is value list and not queryset no need to serialize the data
+
+
+
+
+
+
+
+
+
+       
 
 
 
