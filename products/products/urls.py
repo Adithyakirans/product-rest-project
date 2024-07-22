@@ -22,7 +22,8 @@ from base import views
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register("base/products",views.ProductViewsetView,basename="products")
+# router.register("base/products",views.ProductViewsetView,basename="products")
+router.register("base/products", views.ProductModelViewset,basename="products")
 router.register("base/user",views.UserView,basename="user")
 urlpatterns = [
     path('admin/', admin.site.urls),
