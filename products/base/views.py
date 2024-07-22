@@ -6,6 +6,7 @@ from .models import Products
 from .serializers import ProductSerializer
 # Create your views here.
 
+# using API views
 class ProductView(APIView):
     def get(self,request,*args,**kwargs):
         qs = Products.objects.all()
@@ -31,3 +32,12 @@ class ProductDetailView(APIView):
         id = kwargs.get('id')
         qs = Products.objects.get(id=id).delete()
         return Response(data={'msg':'deleted'})
+    
+    def put(self,request,*args,**kwargs):
+        id = kwargs.get('id')
+        Products.objects.filter(id=id).update(**request.data)
+        qs = Products.objects.get(id=id)
+        serializer = ProductSerializer(qs,many=False)
+        return Response(data=serializer.data)
+    
+
