@@ -2,11 +2,12 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Products
-from .serializers import ProductSerializer,UserSerializer
+from .models import Products,Cart,Reviews
+from .serializers import ProductSerializer,UserSerializer,CartSerializer
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from django.contrib.auth.models import User
+from rest_framework import authentication,permissions
 # Create your views here.
 
 
@@ -124,12 +125,49 @@ def categories(self,request,*args,**kwargs):
 class ProductModelViewset(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     queryset = Products.objects.all()
+    # adding authentication and permissions
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
+    @action(methods=['POST'],detail=True)
+    def addto_cart(self,request,*args,**kwargs):
+        # get the product id
+        id = kwargs.get('pk')
+        product = Products.objects.get(id=id)
+        user = request.user
+        # create or add details to cart
+        user.cart_set.create(product=product)
+        return Response(data={'message':'product added to cart'})
+    
 
 class UserView(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    
+
+
+# listing cart details of the user
+
+class CartView(viewsets.ModelViewSet):
+    serializer_class = CartSerializer
+    queryset = Cart.objects.all()
+    authentication_classes = [authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+# here we are over riding list function of in model viewset because list function list out all data in cart , as we need data of a specific logined user
+
+    def list(self,request,*args,**kwargs):
+        # list out data inside the cart of the particular user
+        qs = request.user.cart_set.all()
+        serializer = CartSerializer
+        return Response(data=serializer.data)
+# we are overriding get queryset of generic api view
+    # def get_queryset(self):
+    #     return self.request.user.cart_set.all() OR
+    #     return self.request.user.cart_set.filter(is_active=True) OR
+    #     return Cart.objects.filter(user=self.request.user)
+
+
+
 
 
 
