@@ -29,5 +29,6 @@ router.register("cart",views.CartView,basename="cart")
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('products/', views.ProductView.as_view()),
-    path('products/<int:id>/', views.ProductDetailView.as_view())
+    path('products/<int:id>/', views.ProductDetailView.as_view()),
+    path('delete_review/<int:pk>/', views.Delete_review.as_view())
 ]+router.urls

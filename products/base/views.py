@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Products,Cart,Reviews
-from .serializers import ProductSerializer,UserSerializer,CartSerializer
+from .serializers import ProductSerializer,UserSerializer,CartSerializer,ReviewSerializer
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from django.contrib.auth.models import User
@@ -129,6 +129,8 @@ class ProductModelViewset(viewsets.ModelViewSet):
     authentication_classes = [authentication.BasicAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+
+# custom method for add to cart function
     @action(methods=['POST'],detail=True)
     def addto_cart(self,request,*args,**kwargs):
         # get the product id
@@ -138,6 +140,35 @@ class ProductModelViewset(viewsets.ModelViewSet):
         # create or add details to cart
         user.cart_set.create(product=product)
         return Response(data={'message':'product added to cart'})
+    
+# custom method for adding review
+    # localhost:8000/base/products/id/add_review
+    @action(methods=['POST'],detail=True)
+    def add_review(self,request,*args,**kwargs):
+        user = request.user
+        id = kwargs.get('pk')
+        product = Products.objects.get(id=id)
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=user,product=product)
+            return Response(data=serializer.data)
+        else:
+            return Response(data=serializer.errors)
+        
+# getting reviews
+        # localhost:8000/base/products/id/review
+    @action(methods=['GET'],detail=True)
+    def review(self,request,*args,**kwargs):
+        # get review of given id
+        # id =kwargs.get('pk')
+        # product = Products.objects.get(id=id)
+
+# when user already passed the id theres built in method to retrieve product details
+        product = self.get_object()
+        reviews = product.reviews_set.all()
+        serializer = ReviewSerializer(reviews,many=True)
+        return Response(data=serializer.data)
+
     
 
 class UserView(viewsets.ModelViewSet):
@@ -158,7 +189,7 @@ class CartView(viewsets.ModelViewSet):
     def list(self,request,*args,**kwargs):
         # list out data inside the cart of the particular user
         qs = request.user.cart_set.all()
-        serializer = CartSerializer
+        serializer = CartSerializer(qs,many=True)
         return Response(data=serializer.data)
 # we are overriding get queryset of generic api view
     # def get_queryset(self):
@@ -167,6 +198,13 @@ class CartView(viewsets.ModelViewSet):
     #     return Cart.objects.filter(user=self.request.user)
 
 
+
+# deleting a review using api view
+class Delete_review(APIView):
+        def delete(self,request,*args,**kwargs):
+            id = kwargs.get('pk')
+            Reviews.objects.get(id=id).delete()
+            return Response(data={"message":"review deleted"})
 
 
 
