@@ -11,10 +11,29 @@ class Products(models.Model):
     description = models.CharField(max_length=150)
     category = models.CharField(max_length=150)
     image = models.ImageField(null=True,blank=True)
-    
 
     def __str__(self):
         return self.name
+    @property
+    def avg_rating(self):
+    # fetch ratings from review model using valuelist
+        ratings = self.reviews_set.all().values_list('rating',flat=True)
+        if ratings:
+            return sum(ratings)/len(ratings)
+        else:
+            return 0
+        
+    @property    
+    def total_rating(self):
+        rating = self.reviews_set.all().values_list('rating',flat=True)
+        if rating:
+            return len(rating)
+        else:
+            return 0
+
+    
+
+    
     
 class Cart(models.Model):
     product = models.ForeignKey(Products,on_delete=models.CASCADE)

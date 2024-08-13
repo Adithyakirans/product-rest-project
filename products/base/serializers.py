@@ -15,10 +15,12 @@ from django.contrib.auth.models import User
 # Using modelserializer
 
 class ProductSerializer(serializers.ModelSerializer):
+    avg_rating = serializers.CharField(read_only=True)
+    total_rating = serializers.CharField(read_only=True)
 
     class Meta:
         model = Products
-        fields = ['id','name','price','description','category']
+        fields = ['id','name','price','description','category','avg_rating','total_rating']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
